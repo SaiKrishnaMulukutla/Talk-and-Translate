@@ -12,7 +12,8 @@ The system uses popular machine learning models, APIs, and libraries to deliver 
 
 ## Demo Video
 ---
-🎥 **Watch the demo video** to see how Talk & Translate works in action!  
+🎥 **Watch the demo video** to see how Talk & Translate works in action! 
+
 https://github.com/user-attachments/assets/a5021951-73ed-4ccf-8633-72792ad30b7c
 
 ## Key Features
