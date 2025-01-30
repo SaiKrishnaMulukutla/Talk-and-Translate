@@ -1,0 +1,6 @@
+streamlit
+speech_recognition
+deep_translator
+langdetect
+gtts
+os
