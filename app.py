@@ -8,20 +8,6 @@ import os
 st.set_page_config(page_title="Talk & Translate 🗣️✨", page_icon="🗣️", layout="centered")
 
 recognizer = spr.Recognizer()
-mc = spr.Microphone()
-
-def recognize_speech(recog, source):
-    try:
-        recog.adjust_for_ambient_noise(source, duration=0.2)
-        audio = recog.listen(source)
-        recognized_text = recog.recognize_google(audio)
-        return recognized_text
-    except spr.UnknownValueError:
-        st.error("Google Speech Recognition could not understand the audio.")
-        return None
-    except spr.RequestError as ex:
-        st.error(f"Could not request results from Google Speech Recognition service; {ex}")
-        return None
 
 language_map = {
     'English': 'en', 'Hindi': 'hi', 'Telugu': 'te', 'Kannada': 'kn', 'Tamil': 'ta',
@@ -31,8 +17,8 @@ language_map = {
 
 st.title("Talk & Translate 🗣️🔁")
 st.markdown("""
-This application captures your speech, detects the language, translates it, and then converts it back to speech in the target language. 
-Choose the source and target language, then click the "Start Speaking" button to begin.
+This application captures your **uploaded speech**, detects the language, translates it, and converts it to speech in the target language.  
+Upload an audio file (WAV/MP3), select languages, and let the app do the rest!
 """, unsafe_allow_html=True)
 
 col1, col2 = st.columns([1, 1])
@@ -46,14 +32,20 @@ with col2:
 source_language_code = language_map[source_language_input]
 target_language_code = language_map[target_language_input]
 
-if st.button("Start Speaking", use_container_width=True):
-    with st.spinner("Listening... Please speak now!"):
-        with mc as source:
-            MyText = recognize_speech(recognizer, source)
+uploaded_audio = st.file_uploader("Upload an audio file (WAV/MP3):", type=["wav", "mp3"])
 
-    if MyText:
-        st.success(f"Recognized Text: {MyText}")
+if uploaded_audio is not None:
+    st.audio(uploaded_audio, format='audio/wav')
+    
+    with st.spinner("Transcribing..."):
         try:
+            # Use AudioFile to process uploaded audio
+            with spr.AudioFile(uploaded_audio) as source:
+                audio_data = recognizer.record(source)
+                MyText = recognizer.recognize_google(audio_data)
+
+            st.success(f"Recognized Text: {MyText}")
+            
             detected_language = detect(MyText)
             st.write(f"Detected Language: {detected_language}")
 
@@ -69,15 +61,15 @@ if st.button("Start Speaking", use_container_width=True):
 
             st.audio(audio_file, format="audio/mp3")
 
+        except spr.UnknownValueError:
+            st.error("Speech Recognition could not understand the audio.")
+        except spr.RequestError as e:
+            st.error(f"Could not request results from Google Speech Recognition service; {e}")
         except Exception as e:
-            st.error(f"An error occurred during translation: {e}")
-    else:
-        st.warning("No speech detected. Please try again!")
-
+            st.error(f"An error occurred: {e}")
 else:
-    st.info("Click the button to start the voice recognition and translation process.")
+    st.info("Upload an audio file to begin the voice recognition and translation process.")
 
-st.markdown("""
----
+st.markdown("""---  
 Developed with ❤️ by Mulukutla Sai Krishna.
 """)
