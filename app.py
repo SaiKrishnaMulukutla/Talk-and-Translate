@@ -44,14 +44,14 @@ if uploaded_audio is not None:
 
                 with spr.AudioFile(temp_wav.name) as source:
                     audio_data = recognizer.record(source)
-                    MyText = recognizer.recognize_google(audio_data)
+                    MyText = recognizer.recognize_google(audio_data, language=source_language_code)
 
             st.success(f"Recognized Text: {MyText}")
 
             detected_language = detect(MyText)
             st.write(f"Detected Language: {detected_language}")
 
-            translated_text = GoogleTranslator(source=detected_language, target=target_language_code).translate(MyText)
+            translated_text = GoogleTranslator(source=source_language_code, target=target_language_code).translate(MyText)
             st.write(f"Translated Text in {target_language_input}: {translated_text}")
 
             if not os.path.exists("outputs"):
